@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ContactController extends Controller
 {
     public function getAllContacts()
     {
-        return 'GET ALL CONTACTS';
+        $contacts = DB::table('contacts')->where('id_user',"=", 1)->get()->toArray();
+
+        return $contacts;
     }
     
     public function getContactById($id)
     {
+        $contact = DB::table('contacts')->where('id_user',"=", 1)->where('id', "=", $id)->get()->toArray();
+        $contact = DB::table('contacts')->where('id_user', "=", 1)->find($id);
+
         return 'GET CONTACT BY ID ->'.$id;
     }
 
