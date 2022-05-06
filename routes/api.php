@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,3 +29,13 @@ Route::post('/contacts', [ContactController::class, 'createContact']);
 Route::put('/contacts/{id}', [ContactController::class, 'updateContact']);
 
 Route::delete('/contacts/{id}', [ContactController::class, 'deleteContact']);
+
+// USER
+Route::group([
+    'middleware' => 'jwt.auth'
+], function () {
+    Route::get('/user-by-contact-id/{id}', [UserController::class, 'getUserByContactId']);
+});
+
+Route::post('/create-user-admin/{id}', [UserController::class, 'createUserAdmin']);
+Route::post('/destroy-user-admin/{id}', [UserController::class, 'destroyUserAdmin']);
