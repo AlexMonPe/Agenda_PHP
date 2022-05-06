@@ -107,6 +107,16 @@ class ContactController extends Controller
     public function updateContact(Request $request, $id)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'string',
+                'surname' => 'string',
+                'email' => 'email',
+                'phone_number' => 'string',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
             $contact = Contact::where('id', $id)->where('id_user', 1)->firstOrFail();
 
             if (empty($contact)) {
