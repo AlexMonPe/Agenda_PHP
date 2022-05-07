@@ -22,13 +22,13 @@ class ContactController extends Controller
             // ->toArray();
             $userId = auth()->user()->id;
 
-            // $contacts = Contact::where('id_user', 1)->get()->toArray();
+            //$contacts = Contact::where('id_user', $userId)->get()->toArray();
 
             //trae los contactos del usuario $userId
-            //$user = User::find($userId)->contacts;
+            $contacts = User::find($userId)->contacts;
 
             //trae el usuario del contacto 7
-            $contacts = Contact::find(7)->user;
+            //$contacts = Contact::find(7)->user;
 
             return response()->json(["data" => $contacts, "success" => "response success"], 200);
         } catch (\Throwable $th) {
@@ -45,7 +45,9 @@ class ContactController extends Controller
         try {
             Log::info('init get contacts by id');
             // $contact = DB::table('contacts')->where('id_user',"=", 1)->where('id', "=", $id)->get()->toArray();
-            $contact = Contact::where('id', $id)->where('id_user', 1)->first();
+            $userId = auth()->user()->id;
+
+            $contact = Contact::where('id_user', $userId)->where('id', $id)->first();
 
             if (empty($contact)) {
                 return response()->json(
@@ -78,18 +80,19 @@ class ContactController extends Controller
                 'phone_number' => 'required|string',
             ]);
 
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
-            }
+            if ($validator->fails()) return response()->json($validator->errors(), 400);
+            $userId = auth()->user()->id;
+
             $newContact = new Contact();
+
             $newContact->name = $request->name;
             $newContact->surname = $request->surname;
             $newContact->email = $request->email;
             $newContact->phone_number = $request->phone_number;
-            $newContact->id_user = $request->id_user;
+            $newContact->id_user = $userId;
 
             $newContact->save();
-            
+
             // recupera toda la request del body.
             // $contact = $request->all();
             // $newContact = Contact::create($contact);
@@ -117,7 +120,10 @@ class ContactController extends Controller
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
-            $contact = Contact::where('id', $id)->where('id_user', 1)->firstOrFail();
+
+            $userId = auth()->user()->id;
+
+            $contact = Contact::where('id', $id)->where('id_user', $userId)->firstOrFail();
 
             if (empty($contact)) {
                 return response()->json(
@@ -128,18 +134,13 @@ class ContactController extends Controller
                 );
             }
 
-            if (isset($request->name)) {
-                $contact->name = $request->name;
-            }
-            if (isset($request->surname)) {
-                $contact->surname = $request->surname;
-            }
-            if (isset($request->email)) {
-                $contact->email = $request->email;
-            }
-            if (isset($request->phone_number)) {
-                $contact->phone_number = $request->phone_number;
-            }
+            if (isset($request->name)) $contact->name = $request->name;
+            if (isset($request->surname)) $contact->surname = $request->surname;
+            if (isset($request->email)) $contact->email = $request->email;
+            if (isset($request->phone_number)) $contact->phone_number = $request->phone_number;
+
+            $contact->save();
+
             return response()->json(["data" => $contact, "success" => "Contact updated"], 200);
         } catch (\Throwable $th) {
             Log::error('Error en update contact by id ' . $th->getMessage());
@@ -153,7 +154,9 @@ class ContactController extends Controller
     public function deleteContact($id)
     {
         try {
-            $contact = Contact::where('id', $id)->where('id_user', 1)->first();
+            $userId = auth()->user()->id;
+
+            $contact = Contact::where('id', $id)->where('id_user', $userId)->first();
 
             if (empty($contact)) {
                 return response()->json(
