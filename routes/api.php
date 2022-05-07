@@ -27,30 +27,38 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 //groups necesita un token para acceder a esos endpoints
 Route::group([
-'middleware' => 'jwt.auth'
+    'middleware' => 'jwt.auth'
 ], function () {
-Route::post('/logout', [AuthController::class, 'logout']);
-Route::get('/profile', [AuthController::class, 'profile']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/profile', [AuthController::class, 'profile']);
+});
+
+//Contacts
+
+Route::group([
+    'middleware' => ['jwt.auth'],
+], function () {
+    Route::get('/contacts', [ContactController::class, 'getAllContacts']);
+    Route::get('/contacts/{id}', [ContactController::class, 'getContactById']);
+    Route::post('/contacts', [ContactController::class, 'createContact']);
+    Route::put('/contacts/{id}', [ContactController::class, 'updateContact']);
+    Route::delete('/contacts/{id}', [ContactController::class, 'deleteContact']);
 });
 
 
 
-Route::get('/contacts', [ContactController::class, 'getAllContacts']);
-
-Route::get('/contacts/{id}', [ContactController::class, 'getContactById']);
-
-Route::post('/contacts', [ContactController::class, 'createContact']);
-
-Route::put('/contacts/{id}', [ContactController::class, 'updateContact']);
-
-Route::delete('/contacts/{id}', [ContactController::class, 'deleteContact']);
-
-// USER
+// Users
 Route::group([
     'middleware' => 'jwt.auth'
 ], function () {
     Route::get('/user-by-contact-id/{id}', [UserController::class, 'getUserByContactId']);
 });
 
-Route::post('/create-user-admin/{id}', [UserController::class, 'createUserAdmin']);
-Route::post('/destroy-user-admin/{id}', [UserController::class, 'destroyUserAdmin']);
+//SuperAdmin
+
+Route::group([
+    'middleware' => 'isSuperAdmin'
+], function () {
+    Route::post('/create-user-admin/{id}', [UserController::class, 'createUserAdmin']);
+    Route::post('/destroy-user-admin/{id}', [UserController::class, 'destroyUserAdmin']);
+});
