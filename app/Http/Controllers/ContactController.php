@@ -89,7 +89,8 @@ class ContactController extends Controller
             $newContact->id_user = $request->id_user;
 
             $newContact->save();
-
+            
+            // recupera toda la request del body.
             // $contact = $request->all();
             // $newContact = Contact::create($contact);
 
